@@ -1,0 +1,9 @@
+apiVersion: web.czy.io/v1
+kind: Deployweb
+metadata:
+  name: deployweb-sample
+spec:
+  # TODO(user): Add fields here
+  image: ccr.ccs.tencentyun.com/oldcc/k8s-nginx-test:v1
+  port: 30010
+  replicas: 2

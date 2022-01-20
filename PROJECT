@@ -1,0 +1,16 @@
+domain: czy.io
+layout:
+- go.kubebuilder.io/v3
+projectName: demo3
+repo: demo3
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: czy.io
+  group: web
+  kind: Deployweb
+  path: demo3/api/v1
+  version: v1
+version: "3"
