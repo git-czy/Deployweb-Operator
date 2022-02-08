@@ -18,6 +18,8 @@ package controllers
 
 import (
 	"context"
+	"strconv"
+
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,7 +29,6 @@ import (
 	cutil "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"strconv"
 
 	webv1 "demo3/api/v1"
 )
@@ -45,10 +46,10 @@ type DeploywebReconciler struct {
 //+kubebuilder:rbac:groups=core,resources=services,verbs=get;create
 
 const (
-	APP_NAME = "web-app"
-	PENDING  = "pending"
-	RUNNING  = "running"
-	UNKONWN  = "unknown"
+	APPNAME = "web-app"
+	PENDING = "pending"
+	RUNNING = "running"
+	UNKNOWN = "unknown"
 )
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
@@ -65,7 +66,7 @@ func (r *DeploywebReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		} else {
 			logger.Error(err, "query deployWeb error")
 			// 更新状态
-			if err := updateStatus(ctx, r, deployWeb, UNKONWN); err != nil {
+			if err := updateStatus(ctx, r, deployWeb, UNKNOWN); err != nil {
 				logger.Error(err, "update deployWeb failed in main reconcile")
 				return ctrl.Result{}, err
 			}
@@ -102,7 +103,7 @@ func (r *DeploywebReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		} else {
 			logger.Error(err, "query rcInstance error")
 			// 更新状态
-			if err = updateStatus(ctx, r, deployWeb, UNKONWN); err != nil {
+			if err = updateStatus(ctx, r, deployWeb, UNKNOWN); err != nil {
 				logger.Error(err, "update deployWeb failed in main reconcile")
 				return ctrl.Result{}, err
 			}
@@ -163,7 +164,7 @@ func createService(ctx context.Context, r *DeploywebReconciler, deployWeb *webv1
 				},
 			},
 			Selector: map[string]string{
-				"app": APP_NAME,
+				"app": APPNAME,
 			},
 			Type: corev1.ServiceTypeNodePort,
 		},
@@ -202,18 +203,18 @@ func createReplicationController(ctx context.Context, r *DeploywebReconciler, de
 		Spec: corev1.ReplicationControllerSpec{
 			Replicas: deployWeb.Spec.Replicas,
 			Selector: map[string]string{
-				"app": APP_NAME,
+				"app": APPNAME,
 			},
 			Template: &corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": APP_NAME,
+						"app": APPNAME,
 					},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Name:            APP_NAME,
+							Name:            APPNAME,
 							Image:           deployWeb.Spec.Image,
 							ImagePullPolicy: "IfNotPresent",
 							Ports: []corev1.ContainerPort{
